@@ -2,10 +2,12 @@ package dz.kyrios.bookstore.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.lang.NonNull;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
