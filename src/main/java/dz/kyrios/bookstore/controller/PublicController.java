@@ -27,7 +27,7 @@ public class PublicController {
                                               @RequestParam Optional<String> keyword) {
         try {
             Pageable pageable = PageRequest.of(page.orElse(0), size.orElse(10));
-            return new ResponseEntity<>(bookService.searchBooks(keyword.orElse(""), pageable), HttpStatus.OK);
+            return new ResponseEntity<>(bookService.getBooksWithSearch(keyword.orElse(""), pageable), HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         } catch (RuntimeException e) {
@@ -40,7 +40,7 @@ public class PublicController {
     @GetMapping("/{id}")
     public ResponseEntity<Object> getBookById(@PathVariable Long id) {
         try {
-            BookResponseDto response = bookService.getBookById(id);
+            BookResponseDto response = bookService.getBookByIdPublic(id);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

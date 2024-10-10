@@ -1,6 +1,6 @@
 spring:
   application:
-    name: admin-service
+    name: book-store
   datasource:
     url: jdbc:postgresql://localhost:5432/mydatabase
     username: abbes

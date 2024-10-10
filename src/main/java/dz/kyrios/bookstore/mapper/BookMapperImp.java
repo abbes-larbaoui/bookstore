@@ -9,22 +9,22 @@ import org.springframework.stereotype.Component;
 public class BookMapperImp implements BookMapper {
     @Override
     public Book requestToEntity(BookRequestDto request) {
-        return Book.builder()
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .price(request.getPrice())
-                .build();
+        Book book = new Book();
+        book.setTitle(request.getTitle());
+        book.setDescription(request.getDescription());
+        book.setPrice(request.getPrice());
+        return book;
     }
 
     @Override
     public BookResponseDto entityToResponse(Book entity) {
-        return BookResponseDto.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .author(entity.getAuthor().getPseudonym())
-                .description(entity.getDescription())
-                .coverImagePath(entity.getCoverImagePath())
-                .price(entity.getPrice())
-                .build();
+        BookResponseDto response = new BookResponseDto();
+        response.setId(entity.getId());
+        response.setTitle(entity.getTitle());
+        response.setDescription(entity.getDescription());
+        response.setPrice(entity.getPrice());
+        response.setAuthor(entity.getAuthor().getPseudonym());
+        response.setCoverImagePath(entity.getCoverImagePath());
+        return response;
     }
 }

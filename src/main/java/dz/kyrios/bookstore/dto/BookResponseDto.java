@@ -1,10 +1,12 @@
 package dz.kyrios.bookstore.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Builder
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BookResponseDto {
 
     private Long id;
