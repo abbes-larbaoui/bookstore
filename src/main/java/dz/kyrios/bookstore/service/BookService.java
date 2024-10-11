@@ -9,18 +9,27 @@ import dz.kyrios.bookstore.entity.User;
 import dz.kyrios.bookstore.mapper.BookMapper;
 import dz.kyrios.bookstore.repository.BookRepository;
 import dz.kyrios.bookstore.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class BookService {
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     private final BookRepository bookRepository;
 
@@ -84,11 +93,21 @@ public class BookService {
         }
     }
 
-    public BookResponseDto saveBook(BookRequestDto request) {
+    public BookResponseDto saveBook(BookRequestDto request, MultipartFile file) {
         User currentUser = userRepository.findByUsername(authService.getCurrentUser())
                 .orElseThrow(() -> new NotFoundException("Current User not found"));
         Book bookToCreate = bookMapper.requestToEntity(request);
         bookToCreate.setAuthor(currentUser);
+        if (!file.isEmpty()) {
+            Path filePath = Paths.get(uploadDir, file.getOriginalFilename());
+            try {
+                Files.createDirectories(filePath.getParent());
+                Files.write(filePath, file.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            bookToCreate.setCoverImagePath(filePath.toString());
+        }
         Book created = bookRepository.save(bookToCreate);
         return bookMapper.entityToResponse(created);
     }
@@ -109,7 +128,29 @@ public class BookService {
         } else {
             throw new AuthorizationDeniedException("You are not authorized to edit this resource.");
         }
+    }
 
+    public BookResponseDto updateCoverImage(MultipartFile file, Long id) {
+        User currentUser = userRepository.findByUsername(authService.getCurrentUser())
+                .orElseThrow(() -> new NotFoundException("Current User not found"));
+        Book entity = bookRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(id, "Book not found with id: "));
+
+        if (currentUser.equals(entity.getAuthor())) {
+            Path oldPath = Paths.get(entity.getCoverImagePath());
+            Path newPath = Paths.get(uploadDir, file.getOriginalFilename());
+            try {
+                Files.delete(oldPath);
+                Files.createDirectories(newPath.getParent());
+                Files.write(newPath, file.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return bookMapper.entityToResponse(entity);
+        } else {
+            throw new AuthorizationDeniedException("You are not authorized to edit this resource.");
+        }
     }
 
     public void deleteBook(Long id) {
@@ -118,6 +159,12 @@ public class BookService {
         Book entity = bookRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(id, "Book not found with id: "));
         if (currentUser.equals(entity.getAuthor())) {
+            Path path = Paths.get(entity.getCoverImagePath());
+            try {
+                Files.delete(path);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             bookRepository.delete(entity);
         } else {
             throw new AuthorizationDeniedException("You are not authorized to delete this resource.");

@@ -1,5 +1,6 @@
 package dz.kyrios.bookstore.controller;
 
+import dz.kyrios.bookstore.config.exception.AuthorizationDeniedException;
 import dz.kyrios.bookstore.config.exception.NotFoundException;
 import dz.kyrios.bookstore.dto.BookRequestDto;
 import dz.kyrios.bookstore.dto.BookResponseDto;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -45,6 +47,8 @@ public class BookController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (AuthorizationDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
@@ -53,9 +57,16 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody BookRequestDto request) {
+    public ResponseEntity<Object> save(@RequestParam("file") MultipartFile file,
+                                       @RequestParam("title") String title,
+                                       @RequestParam("description") String description,
+                                       @RequestParam("price") Double price) {
         try {
-            BookResponseDto response = bookService.saveBook(request);
+            BookRequestDto bookRequestDto = new BookRequestDto();
+            bookRequestDto.setTitle(title);
+            bookRequestDto.setDescription(description);
+            bookRequestDto.setPrice(price);
+            BookResponseDto response = bookService.saveBook(bookRequestDto, file);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -74,7 +85,26 @@ public class BookController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
+        } catch (AuthorizationDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }  catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{id}/update-cover-image")
+    public ResponseEntity<Object> updateCoverImage(@RequestParam("file") MultipartFile file,
+                                                   @PathVariable Long id) {
+        try {
+            BookResponseDto response = bookService.updateCoverImage(file, id);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (AuthorizationDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }  catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -88,7 +118,9 @@ public class BookController {
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (RuntimeException e) {
+        } catch (AuthorizationDeniedException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+        }  catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
