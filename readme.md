@@ -28,7 +28,7 @@ This is a simple Spring Boot application for managing a bookstore, providing API
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-repository/bookstore.git
+   git clone https://github.com/abbes-larbaoui/bookstore.git
    cd bookstore
    ```
 
@@ -56,7 +56,7 @@ This is a simple Spring Boot application for managing a bookstore, providing API
 ### Login API
 
 #### **Login User**
-- **POST** `/login`
+- **POST** `/api/auth/login`
 - **Request Body**:
   ```json
   {
