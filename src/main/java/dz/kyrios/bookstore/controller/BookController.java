@@ -5,6 +5,8 @@ import dz.kyrios.bookstore.config.exception.NotFoundException;
 import dz.kyrios.bookstore.dto.BookRequestDto;
 import dz.kyrios.bookstore.dto.BookResponseDto;
 import dz.kyrios.bookstore.service.BookService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/books")
+@Tag(name = "Book", description = "Endpoints for managing book records")
 public class BookController {
 
     private final BookService bookService;
@@ -25,6 +28,7 @@ public class BookController {
     }
 
     @GetMapping()
+    @Operation(summary = "All Books", description = "Get list of all books of the authenticated author, with pagination and search")
     public ResponseEntity<Object> getAllBooks(@RequestParam Optional<Integer> page,
                                               @RequestParam Optional<Integer> size,
                                               @RequestParam Optional<String> keyword) {
@@ -41,6 +45,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "One Book", description = "Get a book detail for the authenticated author")
     public ResponseEntity<Object> getBookById(@PathVariable Long id) {
         try {
             BookResponseDto response = bookService.getBookById(id);
@@ -57,6 +62,7 @@ public class BookController {
     }
 
     @PostMapping
+    @Operation(summary = "Save", description = "Publish a new book for the authenticated author")
     public ResponseEntity<Object> save(@RequestParam("file") MultipartFile file,
                                        @RequestParam("title") String title,
                                        @RequestParam("description") String description,
@@ -78,6 +84,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Edit", description = "Edit a book for the authenticated author")
     public ResponseEntity<Object> update(@RequestBody BookRequestDto request,
                                          @PathVariable Long id) {
         try {
@@ -95,6 +102,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}/update-cover-image")
+    @Operation(summary = "Change cover image", description = "Change a book cover for the authenticated author")
     public ResponseEntity<Object> updateCoverImage(@RequestParam("file") MultipartFile file,
                                                    @PathVariable Long id) {
         try {
@@ -112,6 +120,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete", description = "Unpublish a book for the authenticated author")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
         try {
             bookService.deleteBook(id);

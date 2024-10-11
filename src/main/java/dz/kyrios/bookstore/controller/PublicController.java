@@ -3,7 +3,8 @@ package dz.kyrios.bookstore.controller;
 import dz.kyrios.bookstore.config.exception.NotFoundException;
 import dz.kyrios.bookstore.dto.BookResponseDto;
 import dz.kyrios.bookstore.service.BookService;
-import org.springframework.data.crossstore.ChangeSetPersister;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/books")
+@Tag(name = "Public", description = "Public endpoints")
 public class PublicController {
     private final BookService bookService;
 
@@ -22,6 +24,7 @@ public class PublicController {
     }
 
     @GetMapping()
+    @Operation(summary = "All Books", description = "Get list of all books, with pagination and search")
     public ResponseEntity<Object> getAllBooks(@RequestParam Optional<Integer> page,
                                               @RequestParam Optional<Integer> size,
                                               @RequestParam Optional<String> keyword) {
@@ -38,6 +41,7 @@ public class PublicController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "One Book", description = "Get a book detail")
     public ResponseEntity<Object> getBookById(@PathVariable Long id) {
         try {
             BookResponseDto response = bookService.getBookByIdPublic(id);
