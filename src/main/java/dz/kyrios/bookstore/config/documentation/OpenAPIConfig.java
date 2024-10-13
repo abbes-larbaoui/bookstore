@@ -1,4 +1,4 @@
-package dz.kyrios.bookstore.config;
+package dz.kyrios.bookstore.config.documentation;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
